@@ -1,0 +1,7 @@
+{
+  "name": "Nova VPN - Secure Next-Gen Tunneling",
+  "description": "A high-performance VPN dashboard and marketing site featuring AI-powered server optimization and security insights.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
