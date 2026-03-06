@@ -6,6 +6,7 @@ import { SecurityAssistant } from './components/SecurityAssistant';
 import { ConnectionStatus, Server, UserTier } from './types';
 import { Shield, Globe, Activity, Lock, ChevronRight, Menu, X, Crown, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 import { getAILoadBalancedServer } from './services/geminiService';
+import { motion, AnimatePresence } from 'motion/react';
 
 const SERVERS: Server[] = [
   // Americas
@@ -166,17 +167,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#000000] text-white selection:bg-indigo-500/30">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#050505] text-white selection:bg-indigo-500/30 font-sans">
       {/* Sidebar Navigation */}
-      <nav className={`${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative z-50 w-64 h-full bg-[#050505] border-r border-white/5 transition-transform duration-300 flex flex-col`}>
+      <nav className={`${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative z-50 w-64 h-full bg-[#0A0A0A]/80 backdrop-blur-xl border-r border-white/5 transition-transform duration-300 flex flex-col`}>
         <div className="p-6 flex items-center gap-3 mb-4">
-          <div className="bg-white text-black p-2 rounded-xl">
+          <div className="bg-white text-black p-2 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.15)]">
             <Shield className="w-5 h-5" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">NovaVPN</h1>
+          <h1 className="text-2xl font-display font-bold tracking-tight">NovaVPN</h1>
         </div>
 
-        <div className="px-4 space-y-1 flex-1">
+        <div className="px-4 space-y-2 flex-1">
           <NavItem 
             active={activeTab === 'dashboard'} 
             onClick={() => { setActiveTab('dashboard'); setIsMenuOpen(false); }} 
@@ -198,7 +199,7 @@ export default function App() {
         </div>
 
         <div className="p-6">
-          <div className="bg-[#0A0A0A] rounded-2xl p-4 border border-white/5 relative overflow-hidden group">
+          <div className="bg-[#111111] rounded-2xl p-5 border border-white/5 relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Current Plan</p>
             <div className="flex items-center gap-2">
@@ -208,7 +209,7 @@ export default function App() {
             {userTier === 'free' ? (
               <button 
                 onClick={() => setShowUpgradeModal(true)}
-                className="mt-4 w-full py-2.5 bg-white text-black rounded-xl text-xs font-bold hover:bg-gray-200 transition-all"
+                className="mt-4 w-full py-2.5 bg-white text-black rounded-xl text-xs font-bold hover:bg-gray-200 transition-all shadow-lg"
               >
                 Upgrade to Premium
               </button>
@@ -226,11 +227,17 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        {/* Atmospheric Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-500/5 blur-[120px] rounded-full mix-blend-screen" />
+        </div>
+
         {/* Header (Mobile Only) */}
-        <header className="md:hidden flex items-center justify-between p-4 bg-[#050505] border-b border-white/5">
+        <header className="md:hidden flex items-center justify-between p-4 bg-[#0A0A0A]/80 backdrop-blur-md border-b border-white/5 relative z-40">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-white" />
-            <span className="font-bold">NovaVPN</span>
+            <span className="font-display font-bold text-lg">NovaVPN</span>
           </div>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -238,117 +245,148 @@ export default function App() {
         </header>
 
         {/* Dynamic Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10">
           {/* Notification Toast */}
-          {notification && (
-            <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl animate-in slide-in-from-top-4 fade-in duration-300 ${
-              notification.type === 'info' ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-300' :
-              notification.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' :
-              'bg-rose-500/10 border border-rose-500/20 text-rose-300'
-            }`}>
-              {notification.type === 'info' && <Info className="w-5 h-5" />}
-              {notification.type === 'success' && <CheckCircle2 className="w-5 h-5" />}
-              {notification.type === 'error' && <AlertTriangle className="w-5 h-5" />}
-              <span className="text-sm font-medium">{notification.message}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {notification && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20, x: '-50%' }}
+                animate={{ opacity: 1, y: 0, x: '-50%' }}
+                exit={{ opacity: 0, y: -20, x: '-50%' }}
+                className={`absolute top-4 left-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md ${
+                  notification.type === 'info' ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-300' :
+                  notification.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' :
+                  'bg-rose-500/10 border border-rose-500/20 text-rose-300'
+                }`}
+              >
+                {notification.type === 'info' && <Info className="w-5 h-5" />}
+                {notification.type === 'success' && <CheckCircle2 className="w-5 h-5" />}
+                {notification.type === 'error' && <AlertTriangle className="w-5 h-5" />}
+                <span className="text-sm font-medium">{notification.message}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {activeTab === 'dashboard' && (
-            <VpnDashboard 
-              status={status} 
-              onToggle={toggleConnection} 
-              server={selectedServer}
-              onSelectServer={() => setActiveTab('servers')}
-              errorMessage={errorMessage}
-              onSimulateInterruption={() => {
-                setStatus('failed');
-                setErrorMessage("Connection unexpectedly dropped by the remote host.");
-                setReconnectAttempts(0);
-              }}
-              onAILoadBalance={handleAILoadBalance}
-              isAILoading={isAILoading}
-            />
-          )}
-          {activeTab === 'servers' && (
-            <ServerList 
-              servers={SERVERS} 
-              selectedId={selectedServer.id} 
-              userTier={userTier}
-              onUpgrade={() => setShowUpgradeModal(true)}
-              onSelect={(s) => {
-                setSelectedServer(s);
-                setActiveTab('dashboard');
-              }}
-              onConnect={startConnection}
-            />
-          )}
-          {activeTab === 'ai' && (
-            <SecurityAssistant 
-              currentStatus={status} 
-              currentServer={selectedServer} 
-              userTier={userTier}
-              onUpgrade={() => setShowUpgradeModal(true)}
-              onServerSelect={(id) => {
-                const s = SERVERS.find(sv => sv.id === id);
-                if (s) {
-                  setSelectedServer(s);
-                  setActiveTab('dashboard');
-                }
-              }}
-              allServers={SERVERS}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              {activeTab === 'dashboard' && (
+                <VpnDashboard 
+                  status={status} 
+                  onToggle={toggleConnection} 
+                  server={selectedServer}
+                  onSelectServer={() => setActiveTab('servers')}
+                  errorMessage={errorMessage}
+                  onSimulateInterruption={() => {
+                    setStatus('failed');
+                    setErrorMessage("Connection unexpectedly dropped by the remote host.");
+                    setReconnectAttempts(0);
+                  }}
+                  onAILoadBalance={handleAILoadBalance}
+                  isAILoading={isAILoading}
+                />
+              )}
+              {activeTab === 'servers' && (
+                <ServerList 
+                  servers={SERVERS} 
+                  selectedId={selectedServer.id} 
+                  userTier={userTier}
+                  onUpgrade={() => setShowUpgradeModal(true)}
+                  onSelect={(s) => {
+                    setSelectedServer(s);
+                    setActiveTab('dashboard');
+                  }}
+                  onConnect={startConnection}
+                />
+              )}
+              {activeTab === 'ai' && (
+                <SecurityAssistant 
+                  currentStatus={status} 
+                  currentServer={selectedServer} 
+                  userTier={userTier}
+                  onUpgrade={() => setShowUpgradeModal(true)}
+                  onServerSelect={(id) => {
+                    const s = SERVERS.find(sv => sv.id === id);
+                    if (s) {
+                      setSelectedServer(s);
+                      setActiveTab('dashboard');
+                    }
+                  }}
+                  allServers={SERVERS}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Upgrade Modal */}
-        {showUpgradeModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl max-w-md w-full p-8 relative animate-in fade-in zoom-in-95 duration-200 shadow-2xl">
-              <button 
-                onClick={() => setShowUpgradeModal(false)}
-                className="absolute top-6 right-6 p-2 text-gray-500 hover:text-white rounded-full transition-colors"
+        <AnimatePresence>
+          {showUpgradeModal && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl"
+            >
+              <motion.div 
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] max-w-md w-full p-8 relative shadow-2xl overflow-hidden"
               >
-                <X className="w-5 h-5" />
-              </button>
-              
-              <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.2)]">
-                  <Crown className="w-8 h-8 text-black" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500" />
+                <button 
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="absolute top-6 right-6 p-2 text-gray-500 hover:text-white rounded-full transition-colors bg-white/5 hover:bg-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <div className="flex justify-center mb-6 mt-4">
+                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(234,179,8,0.3)]">
+                    <Crown className="w-10 h-10 text-black" />
+                  </div>
                 </div>
-              </div>
-              
-              <h2 className="text-2xl font-light text-center mb-2 tracking-tight">Upgrade to Premium</h2>
-              <p className="text-gray-400 text-center text-sm mb-8 font-light">
-                Unlock the full potential of NovaVPN with our Premium Ultra plan.
-              </p>
-              
-              <div className="space-y-4 mb-10">
-                <div className="flex items-center gap-4 text-sm text-gray-300">
-                  <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-white shrink-0">✓</div>
-                  <span className="font-light">Access to 6,500+ ultra-fast premium servers</span>
+                
+                <h2 className="text-3xl font-display font-bold text-center mb-3 tracking-tight">Premium Ultra</h2>
+                <p className="text-gray-400 text-center text-sm mb-8 font-light leading-relaxed">
+                  Unlock the full potential of NovaVPN with our most advanced security features.
+                </p>
+                
+                <div className="space-y-5 mb-10 bg-white/5 rounded-2xl p-6 border border-white/5">
+                  <div className="flex items-center gap-4 text-sm text-gray-200">
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 shrink-0">✓</div>
+                    <span className="font-medium">Access to 6,500+ ultra-fast servers</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-200">
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 shrink-0">✓</div>
+                    <span className="font-medium">Nova AI Security Assistant</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-200">
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 shrink-0">✓</div>
+                    <span className="font-medium">Highest speeds & unlimited bandwidth</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-300">
-                  <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-white shrink-0">✓</div>
-                  <span className="font-light">Nova AI Security Assistant</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-300">
-                  <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-white shrink-0">✓</div>
-                  <span className="font-light">Highest speeds & unlimited bandwidth</span>
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => {
-                  setUserTier('premium');
-                  setShowUpgradeModal(false);
-                }}
-                className="w-full py-4 bg-white text-black rounded-2xl font-medium text-lg hover:bg-gray-200 transition-colors shadow-xl"
-              >
-                Upgrade Now - $9.99/mo
-              </button>
-            </div>
-          </div>
-        )}
+                
+                <button 
+                  onClick={() => {
+                    setUserTier('premium');
+                    setShowUpgradeModal(false);
+                  }}
+                  className="w-full py-4 bg-white text-black rounded-2xl font-bold text-lg hover:bg-gray-200 transition-colors shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                >
+                  Upgrade Now - $9.99/mo
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
@@ -358,14 +396,21 @@ function NavItem({ active, onClick, icon, label }: { active: boolean, onClick: (
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all relative overflow-hidden ${
         active 
-          ? 'bg-white/10 text-white' 
+          ? 'text-white font-medium' 
           : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
       }`}
     >
-      {icon}
-      <span className="font-medium text-sm">{label}</span>
+      {active && (
+        <motion.div 
+          layoutId="nav-bg" 
+          className="absolute inset-0 bg-white/10 rounded-xl"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      )}
+      <span className="relative z-10">{icon}</span>
+      <span className="relative z-10 text-sm">{label}</span>
     </button>
   );
 }
